@@ -74,13 +74,7 @@ class MLBApiClient:
 
     def get_teams(self, season: int) -> list[dict[str, Any]]:
         data = self.get_json("/teams", {"sportId": 1, "season": season})
-        teams = [
-            t
-            for t in data.get("teams", [])
-            if t.get("active", True)
-            and t.get("league", {}).get("id") in {103, 104}
-            and t.get("sport", {}).get("id") == 1
-        ]
+        teams = [t for t in data.get("teams", []) if t.get("active", True)]
         return teams
 
     def get_schedule_game_pks(self, season: int) -> list[int]:
