@@ -47,6 +47,21 @@ class MetricsTests(unittest.TestCase):
             self.assertGreaterEqual(m.impact_norm, 0)
             self.assertLessEqual(m.impact_norm, 100)
 
+    def test_inherited_weighting_and_fatigue_cv(self) -> None:
+        apps = [
+            ReliefAppearance(1, "AAA", "A", 10, "2025-04-01", 1, "p1", 8, 1, 0, 1, 0, 1, 1, 10),
+            ReliefAppearance(1, "AAA", "A", 11, "2025-04-02", 2, "p2", 8, 1, 0, 1, 0, 3, 0, 30),
+            ReliefAppearance(1, "AAA", "A", 12, "2025-04-03", 3, "p3", 8, 1, 0, 1, 0, 0, 0, 20),
+        ]
+
+        metrics = compute_team_metrics(TeamSeasonData(1, "AAA", "A", apps))
+
+        # Weighted inherited-runner instability should be > 0 after smoothing.
+        self.assertGreater(metrics.inherited_instability, 0)
+
+        # Fatigue volatility is now coefficient of variation and remains scale-invariant.
+        self.assertAlmostEqual(metrics.fatigue_volatility, 0.5, places=4)
+
 
 if __name__ == "__main__":
     unittest.main()

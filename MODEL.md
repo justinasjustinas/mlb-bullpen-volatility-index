@@ -23,21 +23,21 @@ For each relief appearance:
 3. `impact_proxy = entry_pressure * appearance_outcome`
 
 Team component:
-- `impact_volatility = stddev(impact_proxy across all relief appearances)`
+- `impact_volatility = sample_stddev(impact_proxy across all relief appearances)`
 
 ## Component 2: Inherited runner instability
 For relief appearances with inherited runners > 0:
 - `inherited_scored_rate = inherited_runners_scored / inherited_runners`
 
 Team component:
-- `inherited_instability = stddev(inherited_scored_rate) * sqrt(N_inherited / N_total_relief)`
+- `inherited_instability = weighted_stddev(inherited_scored_rate, weights=inherited_runners) * sqrt(total_inherited_runners / (total_inherited_runners + 30))`
 
 ## Component 3: Fatigue stress proxy
 Per team day:
 - `daily_bullpen_pitches = sum(pitches_thrown by all relievers)`
 
 Team component:
-- `fatigue_volatility = stddev(daily_bullpen_pitches)`
+- `fatigue_volatility = sample_stddev(daily_bullpen_pitches) / mean(daily_bullpen_pitches)`
 - Also reported: `high_usage_share`, the share of days above team-specific 80th percentile of daily bullpen pitches.
 
 ## Normalization and final BVI
