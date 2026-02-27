@@ -36,6 +36,9 @@ python main.py --season 2025 --workers 6
 3. Full ranked list (all MLB teams)
 4. Sanity check line for zero-appearance extraction cases
 
+By default, tables show the compact columns (`Rank`..`Days`) for better terminal fit.
+Use `--show-raw` to append `ImpRaw`, `InhRaw`, and `FatRaw`.
+
 ## Output glossary (every printed column)
 
 The table below includes both the technical definition and what each field means in everyday baseball terms.

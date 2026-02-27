@@ -29,19 +29,27 @@ def _fetch_game_appearances(client: MLBApiClient, game_pk: int) -> list:
         return []
 
 
-def _print_section(title: str, rows: list[tuple[int, TeamMetrics]]) -> None:
+def _print_section(title: str, rows: list[tuple[int, TeamMetrics]], show_raw: bool = False) -> None:
     print(f"\n{title}")
     print("-" * len(title))
-    print(
-        f"{'Rank':>4} {'Team':<5} {'Team Name':<24} {'BVI':>6} {'ImpN':>7} {'InhN':>7} {'FatN':>7} {'ImpRaw':>8} {'InhRaw':>8} {'FatRaw':>8} {'Apps':>6} {'InhApps':>8} {'Days':>6}"
-    )
-    for rank, m in rows:
+    if show_raw:
         print(
+            f"{'Rank':>4} {'Team':<5} {'Team Name':<24} {'BVI':>6} {'ImpN':>7} {'InhN':>7} {'FatN':>7} {'ImpRaw':>8} {'InhRaw':>8} {'FatRaw':>8} {'Apps':>6} {'InhApps':>8} {'Days':>6}"
+        )
+    else:
+        print(
+            f"{'Rank':>4} {'Team':<5} {'Team Name':<24} {'BVI':>6} {'ImpN':>7} {'InhN':>7} {'FatN':>7} {'Apps':>6} {'InhApps':>8} {'Days':>6}"
+        )
+
+    for rank, m in rows:
+        base = (
             f"{rank:>4} {m.team_abbrev:<5} {m.team_name:<24} "
             f"{m.bvi:6.2f} {m.impact_norm:7.2f} {m.inherited_norm:7.2f} {m.fatigue_norm:7.2f} "
-            f"{m.impact_volatility:8.3f} {m.inherited_instability:8.3f} {m.fatigue_volatility:8.3f} "
-            f"{m.relief_appearances:6d} {m.inherited_appearances:8d} {m.season_days:6d}"
         )
+        if show_raw:
+            base += f"{m.impact_volatility:8.3f} {m.inherited_instability:8.3f} {m.fatigue_volatility:8.3f} "
+        base += f"{m.relief_appearances:6d} {m.inherited_appearances:8d} {m.season_days:6d}"
+        print(base)
 
 
 def build_bvi(season: int, workers: int) -> list[TeamMetrics]:
@@ -79,6 +87,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Compute MLB Bullpen Volatility Index (BVI).")
     parser.add_argument("--season", type=int, default=2025)
     parser.add_argument("--workers", type=int, default=6)
+    parser.add_argument(
+        "--show-raw",
+        action="store_true",
+        help="Include raw component columns (ImpRaw/InhRaw/FatRaw) in printed tables.",
+    )
     args = parser.parse_args()
 
     ranked = build_bvi(season=args.season, workers=args.workers)
@@ -87,9 +100,9 @@ def main() -> None:
     least10 = indexed[:10]
     most10 = indexed[-10:]
 
-    _print_section("Top 10 Least Volatile Bullpens", least10)
-    _print_section("Top 10 Most Volatile Bullpens", most10)
-    _print_section("Full Ranked List", indexed)
+    _print_section("Top 10 Least Volatile Bullpens", least10, show_raw=args.show_raw)
+    _print_section("Top 10 Most Volatile Bullpens", most10, show_raw=args.show_raw)
+    _print_section("Full Ranked List", indexed, show_raw=args.show_raw)
 
     print("\nSanity checks")
     print("-------------")
