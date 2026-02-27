@@ -1,7 +1,7 @@
 import unittest
 
 from extract import ReliefAppearance, TeamSeasonData
-from metrics import compute_team_metrics, entry_pressure, finalize_bvi
+from metrics import TeamMetrics, compute_team_metrics, entry_pressure, finalize_bvi
 
 
 class MetricsTests(unittest.TestCase):
@@ -46,6 +46,25 @@ class MetricsTests(unittest.TestCase):
             self.assertLessEqual(m.bvi, 100)
             self.assertGreaterEqual(m.impact_norm, 0)
             self.assertLessEqual(m.impact_norm, 100)
+
+
+    def test_bvi_component_weights(self) -> None:
+        metrics = [
+            TeamMetrics(1, "AAA", "A", 0, 0, 0, 0.0, 0.0, 0.0, 0.0),
+            TeamMetrics(2, "BBB", "B", 0, 0, 0, 0.0, 0.0, 0.0, 0.0),
+        ]
+        metrics[0].impact_volatility = 1.0
+        metrics[0].inherited_instability = 10.0
+        metrics[0].fatigue_volatility = 1.0
+
+        metrics[1].impact_volatility = 10.0
+        metrics[1].inherited_instability = 1.0
+        metrics[1].fatigue_volatility = 1.0
+
+        ranked = finalize_bvi(metrics)
+
+        # Teams should tie because impact and inherited components are equally weighted.
+        self.assertAlmostEqual(ranked[0].bvi, ranked[1].bvi, places=6)
 
     def test_inherited_weighting_and_fatigue_cv(self) -> None:
         apps = [

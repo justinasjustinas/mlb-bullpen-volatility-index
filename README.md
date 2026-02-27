@@ -72,7 +72,7 @@ The table below includes both the technical definition and what each field means
 
 The prototype uses:
 
-- `BVI = 0.50 * ImpN + 0.30 * InhN + 0.20 * FatN`
+- `BVI = 0.40 * ImpN + 0.40 * InhN + 0.20 * FatN`
 
 See `MODEL.md` for formula details and approximation notes.
 
