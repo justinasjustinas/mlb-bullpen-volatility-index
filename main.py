@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any
 
 from extract import TeamSeasonData, extract_relief_appearances, group_by_team
 from metrics import TeamMetrics, compute_team_metrics, finalize_bvi
@@ -30,16 +29,17 @@ def _fetch_game_appearances(client: MLBApiClient, game_pk: int) -> list:
         return []
 
 
-def _print_section(title: str, rows: list[TeamMetrics]) -> None:
+def _print_section(title: str, rows: list[tuple[int, TeamMetrics]]) -> None:
     print(f"\n{title}")
     print("-" * len(title))
     print(
-        f"{'Rank':>4} {'Team':<5} {'Team Name':<24} {'BVI':>6} {'ImpN':>7} {'InhN':>7} {'FatN':>7} {'Apps':>6} {'InhApps':>8} {'Days':>6}"
+        f"{'Rank':>4} {'Team':<5} {'Team Name':<24} {'BVI':>6} {'ImpN':>7} {'InhN':>7} {'FatN':>7} {'ImpRaw':>8} {'InhRaw':>8} {'FatRaw':>8} {'Apps':>6} {'InhApps':>8} {'Days':>6}"
     )
     for rank, m in rows:
         print(
             f"{rank:>4} {m.team_abbrev:<5} {m.team_name:<24} "
             f"{m.bvi:6.2f} {m.impact_norm:7.2f} {m.inherited_norm:7.2f} {m.fatigue_norm:7.2f} "
+            f"{m.impact_volatility:8.3f} {m.inherited_instability:8.3f} {m.fatigue_volatility:8.3f} "
             f"{m.relief_appearances:6d} {m.inherited_appearances:8d} {m.season_days:6d}"
         )
 

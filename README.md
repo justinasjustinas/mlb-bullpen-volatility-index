@@ -38,21 +38,32 @@ python main.py --season 2025 --workers 6
 
 ## Output glossary (every printed column)
 
-| Column | Meaning |
-|---|---|
-| `Rank` | Position in final ascending BVI ranking (1 = least volatile). |
-| `Team` | Team abbreviation from MLB API (e.g., `LAD`, `NYY`). |
-| `Team Name` | Team full name from MLB API. |
-| `BVI` | Final composite Bullpen Volatility Index on 0–100 scale (lower = more stable). |
-| `ImpN` | Normalized impact-proxy volatility component (0–100 after robust clipping + min-max). |
-| `InhN` | Normalized inherited-runner instability component (0–100 after robust clipping + min-max). |
-| `FatN` | Normalized fatigue volatility component (0–100 after robust clipping + min-max). |
-| `ImpRaw` | Raw (pre-normalization) stddev of impact proxy across relief appearances for the team. |
-| `InhRaw` | Raw (pre-normalization) inherited-runner instability = stddev(inherited scored rate) × stabilization factor. |
-| `FatRaw` | Raw (pre-normalization) stddev of daily bullpen pitch totals. |
-| `Apps` | Number of extracted relief appearances for the team. |
-| `InhApps` | Number of extracted relief appearances where inherited runners > 0. |
-| `Days` | Number of game dates with bullpen pitch totals recorded for the team. |
+The table below includes both the technical definition and what each field means in everyday baseball terms.
+
+| Column | Technical meaning | In plain English, this tells you... |
+|---|---|---|
+| `Rank` | Position in final ascending BVI ranking (1 = least volatile). | Where that bullpen sits from most predictable (`1`) to most erratic (`30`). |
+| `Team` | Team abbreviation from MLB API (e.g., `LAD`, `NYY`). | Quick scoreboard-style team code. |
+| `Team Name` | Team full name from MLB API. | The full club name for readability. |
+| `BVI` | Final composite Bullpen Volatility Index on 0–100 scale (lower = more stable). | The headline volatility score: lower means "this bullpen behaves more consistently," higher means "more up-and-down outcomes." |
+| `ImpN` | Normalized impact-proxy volatility component (0–100 after robust clipping + min-max). | How swingy the bullpen is in pressure moments: high values mean relief outings in tense spots vary a lot from calm to damaging. |
+| `InhN` | Normalized inherited-runner instability component (0–100 after robust clipping + min-max). | How inconsistent the bullpen is at handling runners left by previous pitchers: high values mean sometimes they strand them, sometimes many score. |
+| `FatN` | Normalized fatigue volatility component (0–100 after robust clipping + min-max). | How uneven bullpen workload is day-to-day: high values mean big spikes and dips in usage. |
+| `ImpRaw` | Raw (pre-normalization) stddev of impact proxy across relief appearances for the team. | The unscaled "how wild were the game-impact outcomes" number before converting to 0–100. Useful for deeper analysis, but less easy to compare quickly. |
+| `InhRaw` | Raw (pre-normalization) inherited-runner instability = stddev(inherited scored rate) × stabilization factor. | The unscaled "how unpredictable were inherited runner results" number before normalization. |
+| `FatRaw` | Raw (pre-normalization) stddev of daily bullpen pitch totals. | The unscaled "how jumpy was bullpen usage by day" number before normalization. |
+| `Apps` | Number of extracted relief appearances for the team. | Sample size: how many relief outings went into this team's score. |
+| `InhApps` | Number of extracted relief appearances where inherited runners > 0. | How often this bullpen had to clean up someone else's mess. |
+| `Days` | Number of game dates with bullpen pitch totals recorded for the team. | How many game-days were used for workload/fatigue calculations. |
+
+## How to read the output quickly
+
+- Start with **`BVI`** for the overall stability ranking.
+- Use **`ImpN` / `InhN` / `FatN`** to see *why* a team is volatile.
+  - High `ImpN` → volatile results in high-pressure situations.
+  - High `InhN` → inherited runners are handled inconsistently.
+  - High `FatN` → bullpen workload is uneven across days.
+- Use **`Apps` / `InhApps` / `Days`** to judge confidence in the signal (more rows generally means more stable estimates).
 
 ## Composite definition
 
