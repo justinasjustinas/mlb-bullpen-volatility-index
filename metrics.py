@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from statistics import pstdev
+from statistics import mean, stdev
 from typing import Iterable
 
 from extract import ReliefAppearance, TeamSeasonData
@@ -71,7 +71,29 @@ def entry_pressure(ap: ReliefAppearance) -> float:
 def _std(values: list[float]) -> float:
     if len(values) < 2:
         return 0.0
-    return float(pstdev(values))
+    return float(stdev(values))
+
+
+def _weighted_std(values: list[float], weights: list[float]) -> float:
+    if len(values) < 2 or len(values) != len(weights):
+        return 0.0
+
+    total_weight = sum(weights)
+    if total_weight <= 0:
+        return 0.0
+
+    wmean = sum(v * w for v, w in zip(values, weights)) / total_weight
+    variance = sum(w * (v - wmean) ** 2 for v, w in zip(values, weights)) / total_weight
+    return math.sqrt(variance)
+
+
+def _coefficient_of_variation(values: list[float]) -> float:
+    if len(values) < 2:
+        return 0.0
+    avg = mean(values)
+    if avg <= 0:
+        return 0.0
+    return _std(values) / avg
 
 
 def _quantile(values: list[float], q: float) -> float:
@@ -110,6 +132,7 @@ def compute_team_metrics(team_data: TeamSeasonData) -> TeamMetrics:
 
     impacts: list[float] = []
     inherited_rates: list[float] = []
+    inherited_weights: list[float] = []
     daily_pitches: dict[str, int] = {}
 
     for ap in apps:
@@ -119,6 +142,7 @@ def compute_team_metrics(team_data: TeamSeasonData) -> TeamMetrics:
 
         if ap.inherited_runners > 0:
             inherited_rates.append(ap.inherited_runners_scored / ap.inherited_runners)
+            inherited_weights.append(float(ap.inherited_runners))
 
         if ap.game_date:
             daily_pitches.setdefault(ap.game_date, 0)
@@ -126,12 +150,13 @@ def compute_team_metrics(team_data: TeamSeasonData) -> TeamMetrics:
 
     impact_vol = _std(impacts)
 
-    inherited_std = _std(inherited_rates)
-    stabilization = math.sqrt((len(inherited_rates) / n_total) if n_total else 0.0)
+    inherited_std = _weighted_std(inherited_rates, inherited_weights)
+    total_inherited_runners = sum(inherited_weights)
+    stabilization = math.sqrt(total_inherited_runners / (total_inherited_runners + 30.0))
     inherited_instability = inherited_std * stabilization
 
     pitch_values = list(daily_pitches.values())
-    fatigue_vol = _std([float(v) for v in pitch_values])
+    fatigue_vol = _coefficient_of_variation([float(v) for v in pitch_values])
 
     if pitch_values:
         q80 = _quantile([float(v) for v in pitch_values], 0.8)

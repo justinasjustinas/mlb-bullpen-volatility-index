@@ -49,9 +49,9 @@ The table below includes both the technical definition and what each field means
 | `ImpN` | Normalized impact-proxy volatility component (0–100 after robust clipping + min-max). | How swingy the bullpen is in pressure moments: high values mean relief outings in tense spots vary a lot from calm to damaging. |
 | `InhN` | Normalized inherited-runner instability component (0–100 after robust clipping + min-max). | How inconsistent the bullpen is at handling runners left by previous pitchers: high values mean sometimes they strand them, sometimes many score. |
 | `FatN` | Normalized fatigue volatility component (0–100 after robust clipping + min-max). | How uneven bullpen workload is day-to-day: high values mean big spikes and dips in usage. |
-| `ImpRaw` | Raw (pre-normalization) stddev of impact proxy across relief appearances for the team. | The unscaled "how wild were the game-impact outcomes" number before converting to 0–100. Useful for deeper analysis, but less easy to compare quickly. |
-| `InhRaw` | Raw (pre-normalization) inherited-runner instability = stddev(inherited scored rate) × stabilization factor. | The unscaled "how unpredictable were inherited runner results" number before normalization. |
-| `FatRaw` | Raw (pre-normalization) stddev of daily bullpen pitch totals. | The unscaled "how jumpy was bullpen usage by day" number before normalization. |
+| `ImpRaw` | Raw (pre-normalization) sample stddev of impact proxy across relief appearances for the team. | The unscaled "how wild were the game-impact outcomes" number before converting to 0–100. Useful for deeper analysis, but less easy to compare quickly. |
+| `InhRaw` | Raw (pre-normalization) inherited-runner instability = weighted stddev(inherited scored rate, weighted by inherited runners) × smoothing factor. | The unscaled "how unpredictable were inherited runner results" number before normalization. |
+| `FatRaw` | Raw (pre-normalization) coefficient of variation of daily bullpen pitch totals (sample stddev / mean). | The unscaled "how jumpy was bullpen usage by day" number before normalization. |
 | `Apps` | Number of extracted relief appearances for the team. | Sample size: how many relief outings went into this team's score. |
 | `InhApps` | Number of extracted relief appearances where inherited runners > 0. | How often this bullpen had to clean up someone else's mess. |
 | `Days` | Number of game dates with bullpen pitch totals recorded for the team. | How many game-days were used for workload/fatigue calculations. |
