@@ -10,6 +10,11 @@ from typing import Iterable
 from extract import ReliefAppearance, TeamSeasonData
 
 
+IMPACT_WEIGHT = 0.40
+INHERITED_WEIGHT = 0.40
+FATIGUE_WEIGHT = 0.20
+
+
 @dataclass
 class TeamMetrics:
     team_id: int
@@ -192,6 +197,10 @@ def finalize_bvi(metrics: list[TeamMetrics]) -> list[TeamMetrics]:
         m.impact_norm = i_norm[idx]
         m.inherited_norm = h_norm[idx]
         m.fatigue_norm = f_norm[idx]
-        m.bvi = 0.50 * m.impact_norm + 0.30 * m.inherited_norm + 0.20 * m.fatigue_norm
+        m.bvi = (
+            IMPACT_WEIGHT * m.impact_norm
+            + INHERITED_WEIGHT * m.inherited_norm
+            + FATIGUE_WEIGHT * m.fatigue_norm
+        )
 
     return sorted(metrics, key=lambda x: x.bvi)

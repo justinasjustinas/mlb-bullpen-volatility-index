@@ -46,7 +46,7 @@ Across all teams, for each component:
 2. Min-max scale clipped values to [0, 100].
 
 Final composite:
-- `BVI = 0.50 * impact_norm + 0.30 * inherited_norm + 0.20 * fatigue_norm`
+- `BVI = 0.40 * impact_norm + 0.40 * inherited_norm + 0.20 * fatigue_norm`
 
 Interpretation:
 - **Lower BVI = more stable bullpen behavior**
