@@ -81,3 +81,7 @@ See `MODEL.md` for formula details and approximation notes.
 - Entry game-state (inning/outs/runners/score differential) is inferred from the first play where each reliever appears in play-by-play.
 - If exact entry state is unavailable, conservative defaults are used.
 - Requires internet access to `statsapi.mlb.com` on first run; subsequent runs benefit from local cache.
+
+## Contact
+
+If you find this useful, have questions or suggestions, or would like to use it for your own purposes, feel free to open a Discussion or Issue.”
