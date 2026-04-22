@@ -5,7 +5,8 @@ This prototype computes one **team-level BVI score (0-100)** for each MLB team i
 ## Data source
 - MLB Stats API (`statsapi.mlb.com`) only.
 - Team list: `/api/v1/teams?sportId=1&season={season}`
-- Schedule: `/api/v1/schedule?sportId=1&season={season}&gameTypes=R,F,D,L,W,S`
+- Schedule: `/api/v1/schedule?sportId=1&season={season}&gameTypes=R`
+- Only completed regular-season games with `officialDate <= today` are included.
 - Per-game feed: `/api/v1.1/game/{gamePk}/feed/live`
 
 ## Bullpen isolation
