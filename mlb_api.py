@@ -6,6 +6,7 @@ import hashlib
 import json
 import time
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from typing import Any, Dict, Optional
 from urllib.parse import urlencode
@@ -83,20 +84,51 @@ class MLBApiClient:
         ]
         return teams
 
+    @staticmethod
+    def _is_completed_regular_season_game(game: dict[str, Any], today: date) -> bool:
+        game_type = game.get("gameType")
+        if game_type != "R":
+            return False
+
+        official_date = game.get("officialDate")
+        if not official_date:
+            return False
+
+        try:
+            game_date = date.fromisoformat(official_date)
+        except ValueError:
+            return False
+
+        if game_date > today:
+            return False
+
+        status = game.get("status", {})
+        abstract_state = status.get("abstractGameState")
+        coded_state = status.get("codedGameState")
+        detailed_state = status.get("detailedState")
+        return (
+            abstract_state == "Final"
+            or coded_state == "F"
+            or detailed_state in {"Final", "Completed Early", "Game Over"}
+        )
+
     def get_schedule_game_pks(self, season: int) -> list[int]:
-        """Return unique gamePks for regular + postseason games."""
+        """Return unique completed regular-season gamePks through today."""
         data = self.get_json(
             "/schedule",
             {
                 "sportId": 1,
                 "season": season,
-                "gameTypes": "R,F,D,L,W,S",
+                "gameTypes": "R",
                 "hydrate": "team",
             },
         )
         game_pks: set[int] = set()
+        today = date.today()
         for date_row in data.get("dates", []):
             for game in date_row.get("games", []):
+                if not self._is_completed_regular_season_game(game, today):
+                    continue
                 game_pk = game.get("gamePk")
                 if isinstance(game_pk, int):
                     game_pks.add(game_pk)
